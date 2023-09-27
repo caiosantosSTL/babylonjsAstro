@@ -1,0 +1,96 @@
+---
+
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Astro</title>
+		<style>
+			#canvas {
+				border: solid black;
+				height: 600px;
+				width: 1020px;
+			}
+			.container {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 25px;
+				/* height: 100%; */
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Astro</h1>
+			<canvas id="canvas"> </canvas>
+			<img src="/pics/download (25).png" alt="" />
+			<a href="/about">About</a>
+
+
+			
+			<script>
+				import * as BABYLON from "babylonjs";
+				import "babylonjs-loaders";
+
+				const canvas = document.getElementById("canvas");
+
+				const engine = new BABYLON.Engine(canvas, true);
+
+				const createScene = async () => {
+					const scene = new BABYLON.Scene(engine);
+
+					const camera = new BABYLON.ArcRotateCamera(
+						"camera",
+						-Math.PI / 2,
+						Math.PI / 2.5,
+						3,
+						new BABYLON.Vector3(0, 0, 0),
+					);
+					camera.attachControl(canvas, false);
+
+					camera.inputs.addMouseWheel();
+					camera.lowerRadiusLimit = 15;
+					camera.upperRadiusLimit = 50;
+
+					await new BABYLON.PhotoDome(
+						"testdome",
+						"/texture/sky/cerulux1.png",
+						{ resolution: 32, size: 1000 },
+						scene,
+					);
+					await BABYLON.SceneLoader.Append(
+						"/models/",
+						"montmap.glb",
+						scene,
+						function (meshes) {
+							camera.target = meshes[0];
+							console.log("mesh: ", meshes);
+						},
+					);
+
+					const light = new BABYLON.HemisphericLight(
+						"light",
+						new BABYLON.Vector3(0, 1, 0),
+					);
+
+					return scene;
+				};
+
+				const scenex = await createScene();
+
+				engine.runRenderLoop(function () {
+					scenex.render();
+				});
+
+				window.addEventListener("resize", function () {
+					engine.resize();
+				});
+			</script>
+		</div>
+	</body>
+</html>
